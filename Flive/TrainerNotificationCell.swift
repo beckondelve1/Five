@@ -1,18 +1,15 @@
 //
-//  TrainerTableViewCell1.swift
+//  TrainerNotificationCell.swift
 //  Flive
 //
-//  Created by iosteam on 3/26/18.
+//  Created by iosteam on 3/28/18.
 //  Copyright © 2018 mac for ios. All rights reserved.
 //
 
 import UIKit
 
-class TrainerTableViewCell1: UITableViewCell {
-    @IBOutlet weak var availableWorkoutLabel: UILabel!
-    
-    @IBOutlet weak var availTimelbl: UILabel!
-    @IBOutlet weak var availworkoutImg: UIImageView!
+class TrainerNotificationCell: UITableViewCell {
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

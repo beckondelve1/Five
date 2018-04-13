@@ -32,20 +32,74 @@ class registerationViaSocialVC: UIViewController {
             } else if (facebookResult?.isCancelled)! {
                 print("Facebook login was cancelled.")
             } else{
-                SVProgressHUD.show()
-                let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
-                Auth.auth().signIn(with: credential, completion: { (user, error) in
-                    if error != nil{
-                        print(error ?? "")
-                        return
-                    }
-                    if let uid = user?.uid{
-                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CreateAccountVC") as! CreateAccountVC
-                        vc.userUid = uid
-                        SVProgressHUD.dismiss()
-                        self.navigationController?.pushViewController(vc, animated: true)
+                
+                //Graph Request for Image
+                let request = FBSDKGraphRequest(graphPath: "me", parameters: ["fields": "id, name, first_name, last_name, email, picture.type(large),gender"])
+                let _ = request?.start(completionHandler: { (connection, result, error) in
+                    guard let userInfo = result as? [String: Any] else { return } //handle the error
+                    
+                    //The url is nested 3 layers deep into the result so it's pretty messy
+                    if let imageURL = ((userInfo["picture"] as? [String: Any])?["data"] as? [String: Any])?["url"] as? String {
+                        let gender = userInfo["gender"] as! String
+                        let fname = userInfo["first_name"] as! String
+                        let lname = userInfo["last_name"] as! String
+                        let name = "\(fname) \(lname)"
+                        SVProgressHUD.show()
+                        let credential = FacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
+                        Auth.auth().signIn(with: credential, completion: { (user, error) in
+                            if error != nil{
+                                print(error ?? "")
+                                return
+                            }
+                            if let uid = user?.uid{
+                                let ref = Database.database().reference().child("user_types")
+                                
+                                ref.child(uid).observeSingleEvent(of: .value, with: { (snap) in
+                                    if snap.hasChild("type"){
+                                        let snapshot = snap.value as! [String:Any]
+                                        if snapshot.index(forKey: "type") == nil{
+                                            print("no type exist")
+                                            return
+                                        }
+                                        else{
+                                            let type = snapshot["type"]! as! String
+                                            if type  == "user"{
+                                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserVC") as! UserVC
+                                                self.navigationController?.pushViewController(vc, animated: true)
+                                                
+                                            }
+                                            else if type  == "trainer" {
+                                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "homeVC") as! homeVC
+                                                self.navigationController?.pushViewController(vc, animated: true)
+                                                //self.present(vc, animated: true, completion: nil)
+                                            }
+                                            else{
+                                                print("no user")
+                                                return
+                                            }
+                                            SVProgressHUD.dismiss()
+                                        }
+                                    }
+                                    else{
+                                        
+                                        print("nochild")
+                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "CreateAccountVC") as! CreateAccountVC
+                                        vc.userUid = uid
+                                        vc.fbGender = gender
+                                        vc.fbName = name
+                                        vc.fbImageUrl = imageURL
+                                        SVProgressHUD.dismiss()
+                                        self.navigationController?.pushViewController(vc, animated: true)
+                                    }
+                                    
+                                    
+                                }, withCancel: nil)
+                            }
+                           
+                        })
                     }
                 })
+                
                 
             }
         });

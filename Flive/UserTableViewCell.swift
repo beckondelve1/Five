@@ -29,3 +29,24 @@ class UserTableViewCell: UITableViewCell {
     }
 
 }
+
+class UserComingSoonTVC: UITableViewCell {
+    @IBOutlet weak var workoutTime: UILabel!
+    @IBOutlet weak var workoutPostTime: UILabel!
+    @IBOutlet weak var trainerName: UILabel!
+    @IBOutlet weak var workoutDisc: UILabel!
+    @IBOutlet weak var workoutImg: UIImageView!
+    @IBOutlet weak var trainerProfileImg: UIImageView!
+    @IBOutlet weak var btnGetProfile: UIButton!
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        // Initialization code
+        
+        workoutTime.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.6)
+        workoutPostTime.backgroundColor = UIColor.init(red: 0, green: 0, blue: 0, alpha: 0.6)
+        trainerProfileImg.layer.cornerRadius = trainerProfileImg.frame.width/2
+        trainerProfileImg.clipsToBounds = true
+        
+        
+}
+}

@@ -22,6 +22,7 @@ class PreferredWorkoutsVC: UIViewController{
     @IBOutlet weak var bodyweightImg: UIImageView!
     @IBOutlet weak var officeImg: UIImageView!
     var preferredWorkouts = ""
+    var call = Functions()
     @IBAction func back2Complevel(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
@@ -78,11 +79,12 @@ class PreferredWorkoutsVC: UIViewController{
     @IBAction func go2committedWorkout(_ sender: Any) {
          SVProgressHUD.show()
         if preferredWorkouts == ""{
-            print("Please select category")
+            call.showAlertWithoutAction(title: "Error", message: "Select Preferred Workouts!", view: self)
+            SVProgressHUD.dismiss()
         }
         else{
            
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             if let userUid = Auth.auth().currentUser?.uid{
                 ref.child(userUid).updateChildValues(["preferredWorkouts": preferredWorkouts], withCompletionBlock: { (err, refr) in
                     if err != nil{

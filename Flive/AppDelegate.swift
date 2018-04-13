@@ -10,24 +10,24 @@ import UIKit
 import Firebase
 import FBSDKCoreKit
 import FBSDKLoginKit
-
+import IQKeyboardManagerSwift
 
 
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+var storyboard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
     var window: UIWindow?
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         // Override point for customization after application launch.
-        UIApplication.shared.setStatusBarStyle(UIStatusBarStyle.lightContent, animated: true)
+       IQKeyboardManager.sharedManager().enable = true
+        UIApplication.shared.statusBarStyle = .lightContent
         
         UINavigationBar.appearance().barTintColor = UIColor(red: 10/255.0, green: 0/255.0, blue: 0/255.0, alpha: 1.0)
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedStringKey.foregroundColor:UIColor.white]  // Title's text color
-//          ( window?.rootViewController as! UITabBarController ).tabBar.tintColor = UIColor.black
        return FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 
@@ -56,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
         return FBSDKApplicationDelegate.sharedInstance().application(application, open: url as URL!, sourceApplication: sourceApplication, annotation: annotation)
     }
+    
+
 
 }
 

@@ -16,6 +16,7 @@ class CommittedWorkoutsVC: UIViewController{
     @IBOutlet weak var checkImg56: UIImageView!
     @IBOutlet weak var checkImg7: UIImageView!
     var committedWorkouts = ""
+    var call = Functions()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -78,10 +79,11 @@ class CommittedWorkoutsVC: UIViewController{
     @IBAction func go2workoutLength(_ sender: Any) {
         SVProgressHUD.show()
         if committedWorkouts == ""{
-            print("Please select category")
+            call.showAlertWithoutAction(title: "Error", message: "Select Committed Workouts!", view: self)
+            SVProgressHUD.dismiss()
         }
         else{
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             if let userUid = Auth.auth().currentUser?.uid{
                 ref.child(userUid).updateChildValues(["committedWorkouts": committedWorkouts], withCompletionBlock: { (err, refr) in
                     if err != nil{

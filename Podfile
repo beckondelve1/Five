@@ -12,4 +12,7 @@ pod 'Firebase/Auth'
 pod 'Firebase/Storage'
 pod 'FBSDKLoginKit'
 pod 'SVProgressHUD'
+pod 'IQKeyboardManagerSwift'
+pod 'SDWebImage'
+pod 'NVActivityIndicatorView'
 end

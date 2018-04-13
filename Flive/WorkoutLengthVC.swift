@@ -18,6 +18,7 @@ class WorkoutLengthVC: UIViewController{
     @IBOutlet weak var img2025: UIImageView!
     @IBOutlet weak var img2530: UIImageView!
     var workoutLength = ""
+    var call = Functions()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -93,10 +94,11 @@ class WorkoutLengthVC: UIViewController{
     @IBAction func handleNext(_ sender: Any) {
         SVProgressHUD.show()
         if workoutLength == ""{
-            print("Please select category")
+            call.showAlertWithoutAction(title: "Error", message: "Select Workout Lenghth!", view: self)
+            SVProgressHUD.dismiss()
         }
         else{
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             if let userUid = Auth.auth().currentUser?.uid{
                 ref.child(userUid).updateChildValues(["workoutLength": workoutLength], withCompletionBlock: { (err, refr) in
                     if err != nil{

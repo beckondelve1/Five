@@ -9,10 +9,10 @@
 import UIKit
 
 class AwesomePOPupVC: UIViewController {
-
+let call = Functions()
     override func viewDidLoad() {
         super.viewDidLoad()
-
+self.call.showAlertWithoutAction(title: "Workout created successfully!", message: "Thumbnail image can be changed once workout has been created!", view: self)
         // Do any additional setup after loading the view.
     }
 

@@ -139,7 +139,7 @@ class VideoPlayer: UIViewController {
     }
     func checkUserPlan(){
         if let uid = Auth.auth().currentUser?.uid{
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             ref.child(uid).observeSingleEvent(of: .value, with: { (snap) in
                 let snapshot = snap.value as! [String:Any]
                 let plan = snapshot["plan"]! as! String

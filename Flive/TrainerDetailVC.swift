@@ -17,6 +17,7 @@ class TrainerDetailVC: UIViewController {
     @IBOutlet weak var txtAdd2: UITextField!
     @IBOutlet weak var txtCity: UITextField!
     @IBOutlet weak var txtCode: UITextField!
+    var call = Functions()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -29,18 +30,36 @@ class TrainerDetailVC: UIViewController {
     }
     
     @IBAction func handleUpdateProfile(_ sender: Any) {
-        let ref = Database.database().reference()
-        if let userUid = Auth.auth().currentUser?.uid{
-            ref.child(userUid).updateChildValues(["bio": txtBio.text!,"address1": txtAdd1.text!,"address2": txtAdd2.text!,"city": txtCity.text!,"code": txtCode.text!], withCompletionBlock: { (err, refr) in
-                if err != nil{
-                    print(err?.localizedDescription ?? "")
-                    return
-                }
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "homeVC") as! homeVC
-                SVProgressHUD.dismiss()
-                self.navigationController?.pushViewController(vc, animated: true)
-                //  self.present(vc, animated: true, completion: nil)
-            })
+        if txtBio.text == "" {
+            call.showAlertWithoutAction(title: "Error", message: "Bio is required", view: self)
         }
+        else if txtAdd1.text == ""{
+            call.showAlertWithoutAction(title: "Error", message: "Address is required", view: self)
+        }
+        else if txtCode.text == ""{
+            call.showAlertWithoutAction(title: "Error", message: "Postcode is required", view: self)
+            
+        }
+        else{
+            let ref = Database.database().reference().child("trainer")
+            if let userUid = Auth.auth().currentUser?.uid{
+                ref.child(userUid).updateChildValues(["bio": txtBio.text!,"address1": txtAdd1.text!,"address2": txtAdd2.text!,"city": txtCity.text!,"code": txtCode.text!], withCompletionBlock: { (err, refr) in
+                    if err != nil{
+                        print(err?.localizedDescription ?? "")
+                        return
+                    }
+                    let vc = self.storyboard?.instantiateViewController(withIdentifier: "homeVC") as! homeVC
+                    SVProgressHUD.dismiss()
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    //  self.present(vc, animated: true, completion: nil)
+                })
+            }
+        }
+       
+    }
+}
+extension TrainerDetailVC : UITextViewDelegate{
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        txtBio.text = ""
     }
 }

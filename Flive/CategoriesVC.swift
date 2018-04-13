@@ -11,13 +11,15 @@ import Firebase
 import SVProgressHUD
 class CategoriesVC: UIViewController {
     var category :String = ""
+    var call = Functions()
     @IBAction func NextBtn(_ sender: UIButton) {
         SVProgressHUD.show()
         if category == ""{
-            print("Please select category")
+            call.showAlertWithoutAction(title: "Error", message: "Please Select Atleast One Category!", view: self)
+            SVProgressHUD.dismiss()
         }
         else{
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             if let userUid = Auth.auth().currentUser?.uid{
                 ref.child(userUid).updateChildValues(["category": category], withCompletionBlock: { (err, refr) in
                     if err != nil{

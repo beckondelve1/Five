@@ -18,6 +18,7 @@ class CompetencyLevelVC: UIViewController {
     
     @IBOutlet weak var advanceImg: UIImageView!
     var competencyLevel = ""
+    var call = Functions()
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -65,10 +66,11 @@ class CompetencyLevelVC: UIViewController {
         SVProgressHUD.show()
         
         if competencyLevel == ""{
-            print("Please select category")
+            call.showAlertWithoutAction(title: "Error", message: "Select Competency Level!", view: self)
+            SVProgressHUD.dismiss()
         }
         else{
-            let ref = Database.database().reference()
+            let ref = Database.database().reference().child("user")
             if let userUid = Auth.auth().currentUser?.uid{
                 ref.child(userUid).updateChildValues(["competencyLevel": competencyLevel], withCompletionBlock: { (err, refr) in
                     if err != nil{

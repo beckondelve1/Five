@@ -8,6 +8,8 @@
 
 import UIKit
 import AVKit
+import SVProgressHUD
+import Firebase
 
 class UserVC: UIViewController {
     let myimages = ["11","12","13"]
@@ -18,81 +20,202 @@ class UserVC: UIViewController {
     @IBOutlet weak var CollectionView2: UICollectionView!
     @IBOutlet weak var CollectionView3: UICollectionView!
     @IBOutlet weak var TableViewWorkout: UITableView!
+    
+    let call = Functions()
+    var arrTrainerUID = [String]()
+    var arrTrainerDetail = [TrainerDetail]()
+    var availableWorkouts = [Workouts]()
+    var comingSoonWorkouts = [Workouts]()
+    var dicComingSoonWorkouts = [String:Workouts]()
+    var dicAvailableWorkouts = [String:Workouts]()
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
+       fetchAllTrainers()
+        fetchAllWorkouts()
     }
 
     
    
     @IBAction func handleMenu(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "menuCataVC") as! menuCataVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: false)
     }
     @IBAction func handleLiveWorkout(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserLiveWorkoutVC") as! UserLiveWorkoutVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: false)
     }
     
     @IBAction func handleNotification(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "notificationVC") as! notificationVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: false)
     }
     @IBAction func handleProfile(_ sender: Any) {
         let vc = self.storyboard?.instantiateViewController(withIdentifier: "UserProfileVC") as! UserProfileVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: false)
     }
+    
+    
+    func fetchAllTrainers(){
+        let _ = Database.database().reference().child("trainer").observe(.childAdded) { (snap) in
+            let dic :Dictionary = snap.value as! [String:Any]
+            let trainer = TrainerDetail()
+            trainer.setValuesForKeys(dic)
+            self.arrTrainerUID.append(snap.key)
+            self.arrTrainerDetail.append(trainer)
+            self.CollectionView2.reloadData()
+        }
+    }
+    func fetchAllWorkouts(){
+        SVProgressHUD.show()
+        let _ = Database.database().reference().child("trainer_workouts").observe(.childAdded) { (snap) in
+            let dic :Dictionary = snap.value as! [String:Any]
+            let workout = Workouts()
+            workout.setValuesForKeys(dic)
+            let timestampNow = round(NSDate().timeIntervalSince1970)
+            if workout.workout_time!.doubleValue > timestampNow{
+                self.dicComingSoonWorkouts[workout.workout_category!] = workout
+                
+            }
+            else{
+                self.dicAvailableWorkouts[workout.workout_category!] = workout
+            }
+            
+            self.availableWorkouts = Array(self.dicAvailableWorkouts.values)
+            self.comingSoonWorkouts = Array(self.dicComingSoonWorkouts.values)
+            self.availableWorkouts.sort(by: { (message1, message2) -> Bool in
+                return  message1.workout_time!.intValue > message2.workout_time!.intValue
+            })
+            self.comingSoonWorkouts.sort(by: { (message1, message2) -> Bool in
+                return  message1.workout_time!.intValue > message2.workout_time!.intValue
+            })
+            self.timer?.invalidate()
+            self.timer = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector(self.reloadTable), userInfo: nil, repeats: false)
+            
+            
+        }
+        
+    }
+    var timer : Timer?
+    @objc func reloadTable() {
+        self.CollectionView1.reloadData()
+        self.TableViewWorkout.reloadData()
+        SVProgressHUD.dismiss()
+    }
+
 }
 
 extension UserVC: UITableViewDataSource,UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-       
-                return myimages.count
-            }
+        if tableView == self.TableViewWorkout{
+                return availableWorkouts.count
+        }else{
+            return comingSoonWorkouts.count
+        }
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UserTableViewCell") as! UserTableViewCell
-        cell.availableworkoutLbl.text = categories[indexPath.row]
-        cell.availWorkoutImg.image = UIImage(named:myimages[indexPath.row])
-        cell.upcomingDayslbl.text = workoutlength[indexPath.row]
-        return cell
+        if tableView == self.TableViewWorkout{
+            let workout = availableWorkouts[indexPath.row]
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TrainerTableViewCell1") as! TrainerTableViewCell1
+            //cell.btnSeeMore.tag = indexPath.row
+            cell.availableWorkoutLabel.text = workout.workout_category
+            cell.availworkoutImg.sd_setImage(with: URL(string: workout.workout_thumbnail_url!), placeholderImage: UIImage(named: "placeholder.png"))
+            if let seconds = workout.workout_time{
+                let timestampDate = Date(timeIntervalSince1970: TimeInterval(truncating: seconds)).timeAgoSinceNow
+                //  let dateFormatter = DateFormatter()
+                //dateFormatter.dateFormat = "hh:mm:ss a"
+                cell.availTimelbl.text  = timestampDate
+                
+            }
+            return cell
+        }else{
+            let workout = comingSoonWorkouts[indexPath.row]
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TrainerComingSoonTVC") as! TrainerComingSoonTVC
+            cell.workoutDisc.text = workout.workout_title
+            cell.workoutImg.sd_setImage(with: URL(string: workout.workout_thumbnail_url!), placeholderImage: UIImage(named: "placeholder.png"))
+            cell.workoutTime.text = "\(workout.workout_length!):00"
+            if let seconds = workout.workout_time{
+                let timestampDate = Date(timeIntervalSince1970: TimeInterval(truncating: seconds))
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMM d, h:mm a"
+                cell.workoutPostTime.text  = "Live on \(dateFormatter.string(from: timestampDate))"
+                
+                
+            }
+            Database.database().reference().child("trainer").child(workout.trainer_id!).observe(.value) { (snap) in
+                let dic :Dictionary = snap.value as! [String:Any]
+                let trainer = TrainerDetail()
+                trainer.setValuesForKeys(dic)
+                cell.trainerName.text = trainer.name ?? ""
+                cell.trainerProfileImg.sd_setImage(with: URL(string: trainer.imageUrl!), placeholderImage: UIImage(named: "placeholder.png"))
+            }
+            return cell
+        }
     }
     
+
+func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    if tableView == TableViewWorkout{
+        let workout = availableWorkouts[indexPath.row]
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "AvailableWorkoutVideoVC") as! AvailableWorkoutVideoVC
+        vc.videoFullUrl  = workout.workout_video_url ?? ""
+        vc.videoThumbnailUrl = workout.workout_thumbnail_url ?? ""
+        vc.videoPreviewUrl = workout.workout_preview_video_url ?? ""
+        vc.videoThumbnailUrl = workout.workout_preview_thumbnail_url ?? ""
+        self.present(vc, animated: true, completion: nil)
+        
+    }
+    else{
+        let workout = comingSoonWorkouts[indexPath.row]
+        if let seconds = workout.workout_time{
+            let timestampDate = Date(timeIntervalSince1970: TimeInterval(truncating: seconds))
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, h:mm a"
+            call.showAlertWithoutAction(title: "Opps", message: "This workout will be live \(dateFormatter.string(from: timestampDate))", view: self)
+            
+        }
+        
+    }
 }
 
-
+}
 
 
 extension UserVC: UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == CollectionView1{
-            let cell1 = collectionView.dequeueReusableCell(withReuseIdentifier: "UserCollectionViewCell1", for: indexPath) as! UserCollectionViewCell1
-            cell1.scrollingImg.image = UIImage(named: myimages[indexPath.row])
+            let workout = availableWorkouts[indexPath.row]
+            let cell1 = collectionView.dequeueReusableCell(withReuseIdentifier: "TrainerCollectionViewCell1", for: indexPath) as! TrainerCollectionViewCell1
+            cell1.scrollImg.sd_setImage(with: URL(string: workout.workout_thumbnail_url!), placeholderImage: UIImage(named: "placeholder.png"))
+            
             return cell1
             
-        }else if collectionView == CollectionView2 {     let cell2 = collectionView.dequeueReusableCell(withReuseIdentifier: "UserCollectionViewCell2", for: indexPath) as! UserCollectionViewCell2
-            cell2.trendingworkoutImg.image = UIImage(named: myimages[indexPath.row])
-            cell2.trendingworkoutLBL.text = categories[indexPath.row]
-            cell2.trendingworkoutImg.layer.cornerRadius = cell2.trendingworkoutImg.frame.width/2
-            cell2.trendingworkoutImg.clipsToBounds = true
+        }else if collectionView == CollectionView2 {
+            let trainer = arrTrainerDetail[indexPath.row]
+            let cell2 = collectionView.dequeueReusableCell(withReuseIdentifier: "TrainerCollectionViewCell2", for: indexPath) as! TrainerCollectionViewCell2
+            cell2.cell2Img.sd_setImage(with: URL(string: trainer.imageUrl!), placeholderImage: UIImage(named: "placeholder.png"))
+            cell2.cell2Lbl.text = trainer.name ?? ""
+            cell2.cell2Img.layer.cornerRadius = cell2.cell2Img.frame.width/2
+            cell2.cell2Img.clipsToBounds = true
             return cell2
         }else {
-            let cell3 = collectionView.dequeueReusableCell(withReuseIdentifier: "UserCollectionViewCell3", for: indexPath) as! UserCollectionViewCell3
-            cell3.recommendeworkoutImg.image = UIImage(named: myimages[indexPath.row])
-            
+            //  let work  = workouts[indexPath.row]
+            let cell3 = collectionView.dequeueReusableCell(withReuseIdentifier: "TrainerCollectionViewCell3", for: indexPath) as! TrainerCollectionViewCell3
+            //cell3.cell3Img.sd_setImage(with: URL(string: work.workout_thumbnail_url!), placeholderImage: UIImage(named: "placeholder.png"))
+            //cell3.cell3Lbl.text = work.workout_time
             return cell3
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == self.CollectionView1{
-            return myimages.count
+            return availableWorkouts.count
         }else if collectionView == CollectionView2{
-            return myimages.count
+            return arrTrainerDetail.count
         }else {
-            return myimages.count
+            return availableWorkouts.count
 
         }
     }

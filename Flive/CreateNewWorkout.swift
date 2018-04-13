@@ -8,16 +8,20 @@
 
 import UIKit
 
-class CreateNewWorkout: UIViewController {
+class CreateNewWorkoutVC: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
     }
-   
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBAction func handleMenu(_ sender: Any) {
+    }
+    @IBAction func handlenotifications
+        (_ sender: Any) {
+    }
+    @IBAction func handleHome(_ sender: Any) {
+    }
+    @IBAction func handleTrainerProfile(_ sender: Any) {
     }
 
 

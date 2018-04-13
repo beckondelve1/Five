@@ -34,7 +34,7 @@ class UserSubscriptionVC: UIViewController {
     }
     
     func savePlanToFirebase(plan : String ){
-        let ref = Database.database().reference()
+        let ref = Database.database().reference().child("user")
        if  let uid = Auth.auth().currentUser?.uid {
         ref.child(uid).updateChildValues(["plan" : plan], withCompletionBlock: { (err, ref) in
             if err != nil {
