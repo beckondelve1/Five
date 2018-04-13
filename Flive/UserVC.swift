@@ -155,29 +155,29 @@ extension UserVC: UITableViewDataSource,UITableViewDelegate{
     }
     
 
-func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    if tableView == TableViewWorkout{
-        let workout = availableWorkouts[indexPath.row]
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "AvailableWorkoutVideoVC") as! AvailableWorkoutVideoVC
-        vc.videoFullUrl  = workout.workout_video_url ?? ""
-        vc.videoThumbnailUrl = workout.workout_thumbnail_url ?? ""
-        vc.videoPreviewUrl = workout.workout_preview_video_url ?? ""
-        vc.videoThumbnailUrl = workout.workout_preview_thumbnail_url ?? ""
-        self.present(vc, animated: true, completion: nil)
-        
-    }
-    else{
-        let workout = comingSoonWorkouts[indexPath.row]
-        if let seconds = workout.workout_time{
-            let timestampDate = Date(timeIntervalSince1970: TimeInterval(truncating: seconds))
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMM d, h:mm a"
-            call.showAlertWithoutAction(title: "Opps", message: "This workout will be live \(dateFormatter.string(from: timestampDate))", view: self)
-            
-        }
-        
-    }
-}
+//func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+//    if tableView == TableViewWorkout{
+//        let workout = availableWorkouts[indexPath.row]
+//        let vc = self.storyboard?.instantiateViewController(withIdentifier: "AvailableWorkoutVideoVC") as! AvailableWorkoutVideoVC
+//        vc.videoFullUrl  = workout.workout_video_url ?? ""
+//        vc.videoThumbnailUrl = workout.workout_thumbnail_url ?? ""
+//        vc.videoPreviewUrl = workout.workout_preview_video_url ?? ""
+//        vc.videoThumbnailUrl = workout.workout_preview_thumbnail_url ?? ""
+//        self.present(vc, animated: true, completion: nil)
+//
+//    }
+//    else{
+//        let workout = comingSoonWorkouts[indexPath.row]
+//        if let seconds = workout.workout_time{
+//            let timestampDate = Date(timeIntervalSince1970: TimeInterval(truncating: seconds))
+//            let dateFormatter = DateFormatter()
+//            dateFormatter.dateFormat = "MMM d, h:mm a"
+//            call.showAlertWithoutAction(title: "Opps", message: "This workout will be live \(dateFormatter.string(from: timestampDate))", view: self)
+//
+//        }
+//
+//    }
+//}
 
 }
 
@@ -231,10 +231,10 @@ extension UserVC: UICollectionViewDelegate,UICollectionViewDataSource,UICollecti
         }
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let path = Bundle.main.path(forResource: arrVideos[indexPath.row], ofType: "mp4")
-        let vc = self.storyboard?.instantiateViewController(withIdentifier: "VideoPlayer") as! VideoPlayer
-        vc.videoURL = URL(fileURLWithPath: path!)
-        self.navigationController?.pushViewController(vc, animated: true)
+//        let path = Bundle.main.path(forResource: arrVideos[indexPath.row], ofType: "mp4")
+//        let vc = self.storyboard?.instantiateViewController(withIdentifier: "VideoPlayer") as! VideoPlayer
+//        vc.videoURL = URL(fileURLWithPath: path!)
+//        self.navigationController?.pushViewController(vc, animated: true)
 //        //let videoURL = URL(string: "https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4")
 //        let player = AVPlayer(url: url as URL)
 //        let playerViewController = AVPlayerViewController()

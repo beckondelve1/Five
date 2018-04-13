@@ -12,6 +12,7 @@ import SVProgressHUD
 
 class UserProfileVC: UIViewController {
     
+    
     let myimages = ["cat_1","cat_2","cat_5","cat_6",]
     @IBOutlet weak var collectionview1: UICollectionView!
     
@@ -132,35 +133,32 @@ extension UserProfileVC : UICollectionViewDelegate,UICollectionViewDataSource,UI
         }
     }
     
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-//        
-//        if collectionView == self.collectionview1{
-//            
-//            let itemperrow:CGFloat = 2
-//            
-//            
-//            
-//            let itemWidth = collectionView.bounds.width/itemperrow
-//            let itemHeight = collectionView.bounds.height/itemperrow
-//            return CGSize(width: itemWidth, height: itemHeight)
-//        }else{
-//            
-//            
-//            
-//            let itemsPerRow:CGFloat = 2
-//            
-//            let itemWidth = (collectionView.bounds.width / itemsPerRow)
-//            let itemHeight = (collectionView.bounds.width / itemsPerRow)
-//            return CGSize(width: itemWidth, height: itemHeight)
-//            
-//        }
-//    }
-//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-//        if collectionView == collectionview1 {
-//            return 5
-//        }else{
-//            return 5
-//        }
-//    }
-    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        if collectionView == self.collectionview1{
+            
+            let itemperrow:CGFloat = 2
+            
+            let itemWidth = collectionView.bounds.width/itemperrow
+            let itemHeight = collectionView.bounds.height
+            return CGSize(width: itemWidth, height: itemHeight)
+            
+        }else{
+            
+            let itemWidth = (collectionView.bounds.width/2  - 10 )
+            let itemHeight = (collectionView.bounds.width / 3)
+            return CGSize(width: itemWidth, height: itemHeight)
+            
+        }
+    }
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        if collectionView == collectionview1 {
+            return 2
+        }else{
+            return 0
+        }
+    }
+ 
+  
+   
 }
